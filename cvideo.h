@@ -6,8 +6,8 @@
 // These are approx 9.8% faster than RP2040
 #define piofreq_1_256 7.689f
 #define piofreq_1_320 6.151f
-#define piofreq_1_390 4.8f
-#define piofreq_1_420 4.8f
+#define piofreq_1_392 4.6f
+#define piofreq_1_420 4.5f
 #define piofreq_1_640 3.075f
 
 #define sm_sync 0 // State machine number in the PIO for the sync data

@@ -31,7 +31,6 @@
 #include "hardware/irq.h"
 #include "hardware/pio.h"
 
-#include "charset.h" // The character set
 #include "cvideo.h"
 #include "cvideo_data.pio.h"
 #include "cvideo_sync.pio.h" // The assembled PIO code
@@ -188,12 +187,12 @@ int set_mode(int mode) {
     dfreq = piofreq_1_640;
     break;
   case 3:
-    width = 420;
+    width = 440;
     dfreq = piofreq_1_420;
     break;
   case 4:
-    width = 390;
-    dfreq = piofreq_1_390;
+    width = 392;
+    dfreq = piofreq_1_392;
     break;
   default:
     width = 256;
