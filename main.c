@@ -10,6 +10,7 @@
 #include "hardware/pio.h"
 
 #include "cvideo.h"
+#include "fonts.h"
 #include "graphics.h"
 #include "terminal.h"
 
@@ -38,8 +39,11 @@ void splash() {
 
   set_border(col_black);
 
-  print_string(64, 24, "Unified Operating System", col_black, col_white);
-  print_string(24, 180, "RobCo Industries 2074", col_black, col_white);
+  char uos[]   = "Unified Operating System";
+  char robco[] = "RobCo Industries 2074";
+
+  print_string((width / 2) - ((strlen(uos) * active_font->char_width) / 2), 24, uos, DEFAULT_BG, DEFAULT_FG);
+  print_string((width / 2) - ((strlen(robco) * active_font->char_width) / 2), 180, robco, DEFAULT_BG, DEFAULT_FG);
 
   sleep_ms(2000);
 }
