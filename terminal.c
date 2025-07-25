@@ -73,13 +73,10 @@ void terminal(void) {
   int  ansi_len = 0;
 
   while (true) {
-    // Cursor indicator
-    print_char(terminal_x, terminal_y, '_', col_bg, col_fg);
-
     char c = uart_getc(uart0); // Blocking read
 
-    // Clear old cursor
-    print_char(terminal_x, terminal_y, ' ', col_bg, col_fg);
+    // TODO: Need to find a way to thread this so it's only blocking this thread, we still need to handle user input and render the prompt
+    // etc.
 
     switch (state) {
     case STATE_NORMAL:
