@@ -1,4 +1,10 @@
-# RIT-V300 Firware
+# RIT-V300 Firmware
+
+Firmware for the RIT-V300 series of smart terminal by RobCo Industries.
+
+## Target Hardware
+
+This firmware was built and tested on the RP2350, specifically the Adafruit Metro.
 
 ## Fonts
 
@@ -14,3 +20,11 @@ Each font is then defined in `fonts.h` and `fonts.c`.
 The active system font is referenced from `active_font` and defaults to `Z100_A_F09` (Zenith Z-100, single-dot font, 8x9).
 
 Lines can have additional spacing added with by changing `font_line_spacing` in `fonts.h`.
+
+## Credits
+
+### Video
+All of the composite video work is straight from https://github.com/breakintoprogram/pico-mposite
+Some work was done to modify clocking to work properly on the RP2350. Then additional changes made to support fonts and fit things specifically to the CRT I have. I also removed all of the color RGB support as it was not applicable to this application.
+
+A huge amount of knowledge was derived from this detailed breakdown of PAL video timing https://martin.hinner.info/vga/pal.html.
