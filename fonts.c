@@ -1,8 +1,8 @@
 #include "fonts.h"
 
-#include "apri256.c"
-#include "vga8x16.c"
-#include "z100.c"
+#include "fonts/apri256.c"
+#include "fonts/vga8x16.c"
+#include "fonts/z100.c"
 
 // Instantiate the font struct
 const BitmapFont vga_font_8x16 = {
