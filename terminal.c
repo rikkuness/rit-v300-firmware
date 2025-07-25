@@ -16,8 +16,8 @@
 #include "hardware/uart.h"
 
 #include "cvideo.h"
+#include "fonts.h"
 #include "graphics.h"
-
 #include "terminal.h"
 
 int  terminal_x;
@@ -32,16 +32,16 @@ void initialise_terminal(void) {
 // Handle carriage returns
 void cr(void) {
   terminal_x = 0;
-  terminal_y += 8;
+  terminal_y += active_font->char_height + font_line_spacing;
   if (terminal_y >= height) {
-    terminal_y -= 8;
-    scroll_up(col_terminal_bg, 8);
+    terminal_y -= active_font->char_height + font_line_spacing;
+    scroll_up(col_terminal_bg, (active_font->char_height + font_line_spacing));
   }
 }
 
 // Advance one character position
 void fs(void) {
-  terminal_x += 8;
+  terminal_x += active_font->char_width;
   if (terminal_x >= width) {
     cr();
   }
@@ -49,7 +49,7 @@ void fs(void) {
 
 // Backspace
 void bs(void) {
-  terminal_x -= 8;
+  terminal_x -= active_font->char_width;
   if (terminal_x < 0) {
     terminal_x = 0;
   }

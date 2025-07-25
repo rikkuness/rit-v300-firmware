@@ -41,25 +41,25 @@ void splash() {
   print_string(64, 24, "Unified Operating System", col_black, col_white);
   print_string(24, 180, "RobCo Industries 2074", col_black, col_white);
 
-  sleep_ms(1500);
+  sleep_ms(2000);
 }
 
 // The main loop
 int main() {
   initialise_cvideo(); // Initialise the composite video stuff
-  set_mode(5);         // Set video mode to 390 x 240
+  set_mode(4);         // Set video mode to 390 x 240
   splash();            // Display a splash screen
   cls(col_black);
 
   // colour_bars_v();
   while (true) {
-    terminal();
+    terminal_app();
   }
 }
 
 // Simple terminal output from UART
 //
-void terminal(void) {
+void terminal_app(void) {
   initialise_terminal(); // Initialise the UART
   cls(col_terminal_bg);  // Clear the screen
   terminal();            // And do the terminal

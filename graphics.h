@@ -22,10 +22,8 @@ struct Line {
 
 void cls(unsigned char c);
 void scroll_up(unsigned char c, int rows);
-
 void print_char(int x, int y, int c, unsigned char bc, unsigned char fc);
 void print_string(int x, int y, char *s, unsigned char bc, unsigned char fc);
-
 void plot(int x, int y, unsigned char c);
 void draw_line(int x1, int y1, int x2, int y2, unsigned char c);
 void draw_horizontal_line(int y1, int x1, int x2, int c);

@@ -5,5 +5,5 @@
 #define col_white 0x0F
 
 void splash(void);
-void terminal(void);
+void terminal_app(void);
 int main(void);

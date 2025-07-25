@@ -21,9 +21,8 @@
 #include "hardware/irq.h"
 #include "hardware/pio.h"
 
-#include "charset.h" // The character set
 #include "cvideo.h"
-
+#include "fonts.h"
 #include "graphics.h"
 
 // Clear the screen
@@ -50,19 +49,22 @@ void scroll_up(unsigned char c, int rows) {
 // - fc: Foreground colour
 //
 void print_char(int x, int y, int c, unsigned char bc, unsigned char fc) {
-  int            char_index;
-  unsigned char *ptr;
+  if (c < active_font->first_char || c > active_font->last_char) return;
 
-  if (c >= 32 && c < 128) {
-    char_index = (c - 32) * 8;
-    ptr        = &bitmap[width * y + x + 7];
-    for (int row = 0; row < 8; row++) {
-      unsigned char data = charset[char_index + row];
+  int            glyph_offset = (c - active_font->first_char) * active_font->char_height * active_font->bytes_per_row;
+  unsigned char *ptr          = &bitmap[width * y + x];
+
+  for (int row = 0; row < active_font->char_height; row++) {
+    for (int col_byte = 0; col_byte < active_font->bytes_per_row; col_byte++) {
+      unsigned char data = active_font->glyphs[glyph_offset + row * active_font->bytes_per_row + col_byte];
       for (int bit = 0; bit < 8; bit++) {
-        *(ptr - bit) = data & 1 << bit ? colour_base + fc : colour_base + bc;
+        int col = col_byte * 8 + bit;
+        if (col >= active_font->char_width) break;
+        unsigned char color = (data & (1 << (7 - bit))) ? (colour_base + fc) : (colour_base + bc);
+        ptr[col]            = color;
       }
-      ptr += width;
     }
+    ptr += width;
   }
 }
 
@@ -75,6 +77,7 @@ void print_char(int x, int y, int c, unsigned char bc, unsigned char fc) {
 //
 void print_string(int x, int y, char *s, unsigned char bc, unsigned char fc) {
   for (int i = 0; i < strlen(s); i++) {
+    // print_char(x + i * 8, y, s[i], bc, fc);
     print_char(x + i * 8, y, s[i], bc, fc);
   }
 }
