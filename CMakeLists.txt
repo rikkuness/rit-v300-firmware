@@ -1,3 +1,19 @@
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.1.1)
+set(toolchainVersion 14_2_Rel1)
+set(picotoolVersion 2.1.1)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+set(PICO_BOARD adafruit_feather_rp2350 CACHE STRING "Board type")
+
 #
 # Title:	        Pico-mposite Makefile
 # Description:		Makefile 
@@ -17,12 +33,12 @@
 
 cmake_minimum_required(VERSION 3.13)
 include(pico_sdk_import.cmake)
-project(mposite_project C CXX ASM)
+project(pico-mposite C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
-add_executable(pico-mposite main.c cvideo.c graphics.c charset.c bitmap.c terminal.c)
+add_executable(pico-mposite main.c cvideo.c graphics.c charset.c terminal.c)
 
 pico_generate_pio_header(pico-mposite ${CMAKE_CURRENT_LIST_DIR}/cvideo_sync.pio)
 pico_generate_pio_header(pico-mposite ${CMAKE_CURRENT_LIST_DIR}/cvideo_data.pio)

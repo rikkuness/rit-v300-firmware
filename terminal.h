@@ -9,19 +9,14 @@
 
 #pragma once
 
-#include "config.h"
+#define col_terminal_bg 0x00
+#define col_terminal_fg 0x0f
+#define col_terminal_border 0x04
+#define col_terminal_cursor 0x0f
 
-#if opt_colour == 0
-    #define col_terminal_bg     15
-    #define col_terminal_fg     0
-    #define col_terminal_border 7
-    #define col_terminal_cursor 15
-#else
-    #define col_terminal_bg     rgb(0,0,0)
-    #define col_terminal_fg     rgb(7,7,0)
-    #define col_terminal_border rgb(0,0,2)
-    #define col_terminal_cursor rgb(7,7,7)
-#endif 
+#define terminal_rx_pin 0
+#define terminal_tx_pin 1
+#define terminal_baud 1200
 
 void initialise_terminal(void);
 void terminal(void);
