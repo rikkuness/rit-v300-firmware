@@ -61,6 +61,6 @@ int main() {
 //
 void terminal_app(void) {
   initialise_terminal(); // Initialise the UART
-  cls(col_terminal_bg);  // Clear the screen
+  cls(DEFAULT_BG);       // Clear the screen
   terminal();            // And do the terminal
 }

@@ -13,7 +13,12 @@
 
 #include <stdbool.h>
 
-#define rgb(r, g, b) (((b & 6) << 5) | (g << 3) | r)
+static const uint16_t greys[16] = {
+    0x0000, 0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666, 0x7777,
+    0x8888, 0x9999, 0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD, 0xEEEE, 0xFFFF};
+
+// Convert 4-bit intensity (0-15) to 16-bit greyscale value
+#define GRAY16(i) (((i) << 12) | ((i) << 8) | ((i) << 4) | (i))
 
 struct Line {
   int dx, dy, sx, sy, e, xp, yp, h;
