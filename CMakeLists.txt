@@ -26,20 +26,47 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
-add_executable(rit-v300 main.c cvideo.c graphics.c fonts.c terminal.c)
+## PIO USB Library Setup
+set(PICO_PIO_USB_DIR ${CMAKE_CURRENT_LIST_DIR}/Pico-PIO-USB)
+
+add_library(Pico-PIO-USB STATIC
+  ${PICO_PIO_USB_DIR}/src/pio_usb.c
+  ${PICO_PIO_USB_DIR}/src/pio_usb_host.c
+  ${PICO_PIO_USB_DIR}/src/usb_crc.c
+)
+pico_generate_pio_header(Pico-PIO-USB ${PICO_PIO_USB_DIR}/src/usb_tx.pio)
+pico_generate_pio_header(Pico-PIO-USB ${PICO_PIO_USB_DIR}/src/usb_rx.pio)
+
+target_link_libraries(Pico-PIO-USB PRIVATE
+  pico_stdlib
+  pico_multicore
+  hardware_pio
+  hardware_dma
+)
+target_include_directories(Pico-PIO-USB PRIVATE ${PICO_PIO_USB_DIR})
+
+
+add_executable(rit-v300 main.c cvideo.c graphics.c fonts.c terminal.c hid_app.c
+${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c
+${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
+)
 
 pico_generate_pio_header(rit-v300 ${CMAKE_CURRENT_LIST_DIR}/cvideo_sync.pio)
 pico_generate_pio_header(rit-v300 ${CMAKE_CURRENT_LIST_DIR}/cvideo_data.pio)
 
+target_include_directories(rit-v300 PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${PICO_PIO_USB_DIR}/src)
+
 target_link_libraries(
         rit-v300 PRIVATE
         pico_stdlib
-        
         pico_mem_ops
         hardware_pio
         hardware_dma
         hardware_irq
         pico_bootrom
+        tinyusb_host
+        tinyusb_board   #needed for bsp/board_api.h
+        Pico-PIO-USB
         
 )
 

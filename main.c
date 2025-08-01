@@ -14,6 +14,9 @@
 #include "graphics.h"
 #include "terminal.h"
 
+#include "bsp/board_api.h"
+#include "tusb.h"
+
 #include "main.h"
 
 // Test images - vertical bars in 16 colours
@@ -34,13 +37,14 @@ void colour_bars_h() {
   }
 }
 
+char uos[]   = "Unified Operating System";
+char robco[] = "RobCo Industries 2074";
+
+// Show a splash screen
 void splash() {
   cls(0);
 
   set_border(col_black);
-
-  char uos[]   = "Unified Operating System";
-  char robco[] = "RobCo Industries 2074";
 
   print_string((width / 2) - ((strlen(uos) * active_font->char_width) / 2), 24, uos, DEFAULT_BG, DEFAULT_FG);
   print_string((width / 2) - ((strlen(robco) * active_font->char_width) / 2), 180, robco, DEFAULT_BG, DEFAULT_FG);
@@ -50,13 +54,30 @@ void splash() {
 
 // The main loop
 int main() {
+  board_init();
+
   initialise_cvideo(); // Initialise the composite video stuff
   set_mode(4);         // Set video mode to 390 x 240
   splash();            // Display a splash screen
   cls(col_black);
 
+  gpio_init(29);
+  gpio_set_dir(29, GPIO_OUT);
+  gpio_put(29, 1);
+
+  gpio_init(23);
+  gpio_set_dir(23, GPIO_OUT);
+  gpio_put(23, 1);
+
+  tuh_init(BOARD_TUH_RHPORT);
+  if (board_init_after_tusb) {
+    board_init_after_tusb();
+  }
+
   // colour_bars_v();
   while (true) {
+    tuh_task(); // PANIC: DMA channel 0 is already claimedd
+
     terminal_app();
   }
 }
