@@ -12,7 +12,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+set(PICO_BOARD adafruit_feather_rp2350 CACHE STRING "Board type")
 
 #
 # See the official documentation https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html
@@ -46,7 +46,7 @@ target_link_libraries(Pico-PIO-USB PRIVATE
 target_include_directories(Pico-PIO-USB PRIVATE ${PICO_PIO_USB_DIR})
 
 
-add_executable(rit-v300 main.c cvideo.c graphics.c fonts.c terminal.c hid_app.c
+add_executable(rit-v300 main.c cvideo.c graphics.c fonts.c terminal.c hid_app.c logo_vt_vectors.c vector.c
 ${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c
 ${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
 )
