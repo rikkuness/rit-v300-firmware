@@ -73,7 +73,9 @@ void terminal(void) {
   int  ansi_len = 0;
 
   while (true) {
+    gpio_put(23, 0);
     char c = uart_getc(uart0); // Blocking read
+    gpio_put(23, 1);
 
     // TODO: Need to find a way to thread this so it's only blocking this thread, we still need to handle user input and render the prompt
     // etc.
