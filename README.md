@@ -44,3 +44,7 @@ All of the composite video work is straight from https://github.com/breakintopro
 Some work was done to modify clocking to work properly on the RP2350. Then additional changes made to support fonts and fit things specifically to the CRT I have. I also removed all of the color RGB support as it was not applicable to this application.
 
 A huge amount of knowledge was derived from this detailed breakdown of PAL video timing https://martin.hinner.info/vga/pal.html.
+
+### USB HID
+
+USB HID comes from the CH9350, most of the code used to parse that data was adapted from the Arduino library from https://github.com/joetrs/ESP32_CH9350_KEY
