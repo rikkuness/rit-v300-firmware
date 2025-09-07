@@ -34,6 +34,8 @@ for i in {40..47}; do
 done
 ```
 
+## Images
+
 ## Credits
 
 ### Video
