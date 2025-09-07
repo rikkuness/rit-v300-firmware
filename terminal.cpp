@@ -19,13 +19,14 @@
 #include "cvideo.h"
 #include "fonts.h"
 #include "graphics.h"
+#include "main.h"
 #include "terminal.h"
 
-int terminal_x;
-int terminal_y;
+int  terminal_x;
+int  terminal_y;
 
 void initialise_terminal(void) {
-  uart_init(uart0, UART_SPEED);
+  uart_init(uart1, UART_SPEED);
   gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART); // RX
   gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART); // TX
 }
@@ -62,15 +63,15 @@ void terminal(void) {
   terminal_y = 0;
 
   // Monochrome colors
-  uint16_t default_fg = DEFAULT_FG; // white
-  uint16_t default_bg = DEFAULT_BG; // black
+  uint16_t default_fg                               = DEFAULT_FG; // white
+  uint16_t default_bg                               = DEFAULT_BG; // black
 
-  uint16_t col_fg = default_fg;
-  uint16_t col_bg = default_bg;
+  uint16_t col_fg                                   = default_fg;
+  uint16_t col_bg                                   = default_bg;
 
   enum { STATE_NORMAL, STATE_ESC, STATE_CSI } state = STATE_NORMAL;
   char ansi_buf[8];
-  int ansi_len = 0;
+  int  ansi_len = 0;
 
   while (true) {
     gpio_put(PICO_DEFAULT_LED_PIN, 0);
@@ -106,7 +107,7 @@ void terminal(void) {
 
     case STATE_ESC:
       if (c == '[') {
-        state = STATE_CSI;
+        state    = STATE_CSI;
         ansi_len = 0;
       } else {
         state = STATE_NORMAL;
@@ -134,8 +135,8 @@ void terminal(void) {
             case 7: // Reverse video
             {
               uint16_t tmp = col_fg;
-              col_fg = col_bg;
-              col_bg = tmp;
+              col_fg       = col_bg;
+              col_bg       = tmp;
             } break;
             case 1: // Bold → light gray
               col_fg = GRAY16(12);
@@ -198,8 +199,7 @@ void terminal(void) {
             // Skip to next
             while (*p && *p != ';')
               p++;
-            if (*p == ';')
-              p++;
+            if (*p == ';') p++;
           }
         }
 

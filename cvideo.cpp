@@ -22,6 +22,7 @@
 // resolution video modes 25/02/2022:      Lengthened HSYNC to 12us 27/09/2024:
 // PIO state machines now started simultaneously
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "memory.h"
@@ -36,7 +37,7 @@
 #include "cvideo_sync.pio.h" // The assembled PIO code
 #include "graphics.h"
 
-PIO            pio_0;    // The PIO that this uses
+PIO            pio_1;    // The PIO that this uses
 uint           offset_0; // Program offsets
 uint           offset_1;
 
@@ -104,26 +105,34 @@ unsigned short vsync_ls[32] = {
  */
 int initialise_cvideo(void) {
 
-  pio_0 = pio0; // Assign the PIO
+  pio_1 = pio1; // Assign the PIO
 
   // Load up the PIO programs
   //
-  offset_0      = pio_add_program(pio_0, &cvideo_sync_program);
-  offset_1      = pio_add_program(pio_0, &cvideo_data_program);
+  offset_0 = pio_add_program(pio_1, &cvideo_sync_program);
+  offset_1 = pio_add_program(pio_1, &cvideo_data_program);
 
-  dma_channel_0 = dma_claim_unused_channel(true); // Claim a DMA channel for the sync
-  dma_channel_1 = dma_claim_unused_channel(true); // And one for the pixel data
+  // dma_channel_0 = dma_claim_unused_channel(true); // Claim a DMA channel for
+  // the sync dma_channel_1 = dma_claim_unused_channel(true); // And one for the
+  // pixel data
 
-  vline         = 1; // Initialise the video scan line counter to 1
-  bline         = 0; // And the index into the bitmap pixel buffer to 0
-  vblank_count  = 0; // And the vblank counter
+  dma_channel_0 = 10;
+  dma_channel_claim(10); // Claim a DMA channel for the sync
+  dma_channel_1 = 11;
+  dma_channel_claim(11); // And one for the pixel data
+
+  printf("VIDEO USING DMA %d & %d...\n", dma_channel_0, dma_channel_1);
+
+  vline        = 1; // Initialise the video scan line counter to 1
+  bline        = 0; // And the index into the bitmap pixel buffer to 0
+  vblank_count = 0; // And the vblank counter
 
   // Initialise the first PIO (video sync)
   //
-  pio_sm_set_enabled(pio_0, sm_sync, false); // Disable the PIO state machine
-  pio_sm_clear_fifos(pio_0, sm_sync);        // Clear the PIO FIFO buffers
+  pio_sm_set_enabled(pio_1, sm_sync, false); // Disable the PIO state machine
+  pio_sm_clear_fifos(pio_1, sm_sync);        // Clear the PIO FIFO buffers
   cvideo_sync_initialise_pio(                // Initialise the PIO (function in cvideo.pio)
-      pio_0,                                 // The PIO to attach this state machine to
+      pio_1,                                 // The PIO to attach this state machine to
       sm_sync,                               // The state machine number
       offset_0,                              // And offset
       gpio_base,                             // Start pin in the GPIO
@@ -131,7 +140,7 @@ int initialise_cvideo(void) {
       piofreq_0                              // State machine clock frequency
   );
   cvideo_configure_pio_dma( // Configure the DMA
-      pio_0,                // The PIO to attach this DMA to
+      pio_1,                // The PIO to attach this DMA to
       sm_sync,              // The state machine number
       dma_channel_0,        // The DMA channel
       DMA_SIZE_16,          // Size of each transfer
@@ -139,39 +148,46 @@ int initialise_cvideo(void) {
       cvideo_dma_handler    // The DMA handler
   );
 
-  bitmap = malloc(width * height); // Allocate the bitmap memory
+  printf("VSYNC PIO STARTED\n");
+
+  bitmap = new unsigned char[width * height]; // Allocate the bitmap memory
 
   // Initialise the second PIO (pixel data)
   //
-  cvideo_data_initialise_pio(pio_0, sm_data, offset_1, gpio_base, gpio_count, piofreq_1_256);
+  cvideo_data_initialise_pio(pio_1, sm_data, offset_1, gpio_base, gpio_count, piofreq_1_256);
 
   // Initialise the DMA
   //
-  cvideo_configure_pio_dma(pio_0, sm_data,
+  cvideo_configure_pio_dma(pio_1, sm_data,
                            dma_channel_1, // On DMA channel 1
                            DMA_SIZE_8,    // Size of each transfer
                            width,         // The bitmap width
                            NULL           // But there is no DMA interrupt for the pixel data
   );
 
+  printf("VIDEO PIO STARTED\n");
+
   irq_set_exclusive_handler( // Set up the PIO IRQ handler
-      PIO0_IRQ_0,            // The IRQ #
+      PIO1_IRQ_0,            // The IRQ #
       cvideo_pio_handler     // And handler routine
   );
-  pio0_hw->inte0 = PIO_IRQ0_INTE_SM0_BITS; // Just for IRQ 0 (triggered by irq set 0 in PIO)
-  irq_set_enabled(PIO0_IRQ_0, true);       // Enable it
+  pio1_hw->inte0 = PIO_IRQ0_INTE_SM0_BITS; // Just for IRQ 0 (triggered by irq set 0 in PIO)
+  irq_set_enabled(PIO1_IRQ_0, true);       // Enable it
 
   set_border(0); // Set the border colour
   cls(0);        // Clear the screen
 
   // Start the PIO state machines
   //
-  pio_enable_sm_mask_in_sync(pio_0, (1u << sm_data) | (1u << sm_sync));
+  pio_enable_sm_mask_in_sync(pio_1, (1u << sm_data) | (1u << sm_sync));
+
+  printf("VIDEO STARTUP COMPLETE\n");
   return 0;
 }
 
 // Set the graphics mode
-// mode - The graphics mode (0 = 256x240, 1 = 320x240, 2 = 640x240, 3 = 420x240, 4 = 390x240)
+// mode - The graphics mode (0 = 256x240, 1 = 320x240, 2 = 640x240, 3 = 420x240,
+// 4 = 390x240)
 int set_mode(int mode) {
   double dfreq;
 
@@ -203,17 +219,17 @@ int set_mode(int mode) {
   if (bitmap != NULL) {
     free(bitmap);
   }
-  bitmap = malloc(width * height); // Allocate the bitmap memory
+  bitmap = new unsigned char[width * height]; // Allocate the bitmap memory
 
   cvideo_configure_pio_dma( // Reconfigure the DMA
-      pio_0, sm_data,
+      pio_1, sm_data,
       dma_channel_1, // On DMA channel 1
       DMA_SIZE_8,    // Size of each transfer
       width,         // The bitmap width
       NULL           // But there is no DMA interrupt for the pixel data
   );
 
-  pio_0->sm[sm_data].clkdiv = (uint32_t)(dfreq * (1 << 16));
+  pio_1->sm[sm_data].clkdiv = (uint32_t)(dfreq * (1 << 16));
 
   return 0;
 }
@@ -254,7 +270,7 @@ void cvideo_pio_handler(void) {
   }
   dma_channel_set_read_addr(dma_channel_1, &bitmap[width * bline++],
                             true); // Line up the next block of pixels
-  hw_set_bits(&pio0->irq, 1u);     // Reset the IRQ
+  hw_set_bits(&pio1->irq, 1u);     // Reset the IRQ
 }
 
 // The DMA interrupt handler
@@ -322,7 +338,8 @@ void cvideo_dma_handler(void) {
 // - buffer_size_words: Number of bytes to transfer
 // - handler: Address of the interrupt handler, or NULL for no interrupts
 //
-void cvideo_configure_pio_dma(PIO pio, uint sm, uint dma_channel, uint transfer_size, size_t buffer_size, irq_handler_t handler) {
+void cvideo_configure_pio_dma(PIO pio, uint sm, uint dma_channel, dma_channel_transfer_size transfer_size, size_t buffer_size,
+                              irq_handler_t handler) {
   dma_channel_config c = dma_channel_get_default_config(dma_channel);
   channel_config_set_transfer_data_size(&c, transfer_size);
   channel_config_set_read_increment(&c, true);
