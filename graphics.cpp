@@ -99,12 +99,15 @@ void plot(int x, int y, unsigned char c) {
 // - transparent: pixel value to skip
 //
 void draw_bitmap(int x0, int y0, int w, int h, const unsigned char *data, unsigned char transparent) {
+  int byte_index = 0;
   for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
-      unsigned char c = data[y * w + x];
-      if (c != transparent) {
-        plot(x0 + x, y0 + y, c);
-      }
+    for (int x = 0; x < w; x += 2) {
+      unsigned char byte = data[byte_index++];
+      unsigned char hi   = (byte >> 4) & 0xF;
+      unsigned char lo   = byte & 0xF;
+
+      if (hi != transparent) plot(x0 + x, y0 + y, hi);
+      if (x + 1 < w && lo != transparent) plot(x0 + x + 1, y0 + y, lo);
     }
   }
 }

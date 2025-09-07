@@ -43,7 +43,7 @@ int Stream::available() {
   return uart_is_readable(_uart);
 }
 
-// Begin -> Init Class inkluding Serial Port
+// Begin -> Init Class including Serial Port
 void USB9350_KeyMouse::begin(Stream &serialport) {
   _SerPort        = &serialport;
   _Startflag      = 0;

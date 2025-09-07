@@ -28,7 +28,9 @@ void cls(unsigned char c);
 void scroll_up(unsigned char c, int rows);
 void print_char(int x, int y, int c, unsigned char bc, unsigned char fc);
 void print_string(int x, int y, const char *s, unsigned char bc, unsigned char fc);
+
 void plot(int x, int y, unsigned char c);
+void draw_bitmap(int x0, int y0, int w, int h, const unsigned char *data, unsigned char transparent);
 void draw_line(int x1, int y1, int x2, int y2, unsigned char c);
 void draw_horizontal_line(int y1, int x1, int x2, int c);
 void draw_rect(int x1, int y1, int x2, int y2, unsigned char c, bool filled);

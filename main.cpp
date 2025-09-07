@@ -21,6 +21,8 @@
 #include "CH9350_USBKEY.h"
 #include "main.h"
 
+#include "vt_logo.c"
+
 /*
 void dump_dma_claims(void) {
   for (int i = 0; i < NUM_DMA_CHANNELS; ++i) {
@@ -48,6 +50,8 @@ void splash(const char *extra) {
   print_string((width / 2) - ((strlen(uos) * active_font->char_width) / 2), 24, uos, DEFAULT_BG, DEFAULT_FG);
   print_string((width / 2) - ((strlen(rob) * active_font->char_width) / 2), 180, rob, DEFAULT_BG, DEFAULT_FG);
   print_string((width / 2) - ((strlen(extra) * active_font->char_width) / 2), 200, extra, DEFAULT_BG, DEFAULT_FG);
+
+  draw_bitmap((380 - vt_logo_w) / 2, 70, vt_logo_w, vt_logo_h, vt_logo_bitmap, 0);
 }
 
 int           KeyType;
@@ -82,37 +86,31 @@ void          main2() {
       key = USBKeyMouse.GetKey();
       if (key > 0) {
         if ((key >= 0x20) and (key <= 0x7e)) keyasc = (char)key;
-        printf("Key 0x%02X '%c' pressed\n", key, keyasc);
+        // printf("Key 0x%02X '%c' pressed\n", key, keyasc);
+        uart_putc(uart1, keyasc);
         if (key == 0x20) KeyType = 1; // Space toggle ASCII/OE-CODE to RAW
         StartTime = to_ms_since_boot(get_absolute_time());
       } else if (StartTime > 0) {
         key = USBKeyMouse.KeyPressed();
         if (key == 0x00) {
-          printf("Key released after %ldms\n", to_ms_since_boot(get_absolute_time()) - StartTime);
+          // printf("Key released after %ldms\n", to_ms_since_boot(get_absolute_time()) - StartTime);
           StartTime = 0;
         }
       }
     } else {
       rawkey = USBKeyMouse.GetKeyRaw();
       if (rawkey > 0) {
-        printf("RawKey: 0x%02X / Modifier: 0x%02X pressed\n", rawkey & 0xFF, rawkey >> 8);
+        // printf("RawKey: 0x%02X / Modifier: 0x%02X pressed\n", rawkey & 0xFF, rawkey >> 8);
         if (rawkey == 0x2C) KeyType = 0; // Space toggle ASCII/OE-CODE to RAW
         StartTime = to_ms_since_boot(get_absolute_time());
       } else if (StartTime > 0) {
         rawkey = USBKeyMouse.KeyPressedRaw();
         if (rawkey == 0x00) {
-          printf("Key released after %ldms\n", to_ms_since_boot(get_absolute_time()) - StartTime);
+          // printf("Key released after %ldms\n", to_ms_since_boot(get_absolute_time()) - StartTime);
           StartTime = 0;
         }
       }
     }
-
-    int x, y, z, Button;
-    int Change = USBKeyMouse.GetMouseXY(&x, &y, &z, &Button);
-    if (Change) printf("Mouse X: %d, Y: %d Z: %d Button:%d\n", x, y, z, Button);
-
-    if (Button == 1) USBKeyMouse.SetMouseXY(0, 0);
-    if (Button == 2) USBKeyMouse.SetMouseXY(1000, 1000);
   }
 }
 
