@@ -93,6 +93,23 @@ void plot(int x, int y, unsigned char c) {
   }
 }
 
+// Draw a bitmap image with transparency
+// - x0, y0: top-left position on screen
+// - w, h: width and height of bitmap
+// - data: pointer to bitmap pixel data
+// - transparent: pixel value to skip
+//
+void draw_bitmap(int x0, int y0, int w, int h, const unsigned char *data, unsigned char transparent) {
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      unsigned char c = data[y * w + x];
+      if (c != transparent) {
+        plot(x0 + x, y0 + y, c);
+      }
+    }
+  }
+}
+
 // Draw a line
 // - x1, y1: Coordinates of start point
 // - x2, y2: Coordinates of last point
