@@ -1,9 +1,8 @@
 //
 // Title:	        Pico-mposite Graphics Primitives
-// Description:		A hacked-together composite video output for the Raspberry Pi Pico
-// Author:	        Dean Belfield
-// Created:	        01/02/2021
-// Last Updated:	02/03/2022
+// Description:		A hacked-together composite video output for the
+// Raspberry Pi Pico Author:	        Dean Belfield Created: 01/02/2021 Last
+// Updated:	02/03/2022
 //
 // Modinfo:
 // 03/02/2022:      Fixed bug in print_char, typos in comments
@@ -75,7 +74,7 @@ void print_char(int x, int y, int c, unsigned char bc, unsigned char fc) {
 // - bc: Background
 // - fc: Foreground colour (
 //
-void print_string(int x, int y, char *s, unsigned char bc, unsigned char fc) {
+void print_string(int x, int y, const char *s, unsigned char bc, unsigned char fc) {
   for (int i = 0; i < strlen(s); i++) {
     // print_char(x + i * 8, y, s[i], bc, fc);
     print_char(x + i * 8, y, s[i], bc, fc);
@@ -183,7 +182,8 @@ void draw_circle(int x, int y, int r, unsigned char c, bool filled) {
     }
     xp++;
     if (d > 0) {
-      if (filled) { // We only need to draw these bits when the Y coordinate changes
+      if (filled) { // We only need to draw these bits when the Y coordinate
+                    // changes
         draw_horizontal_line(y + yp, x - xp, x + xp, c);
         draw_horizontal_line(y - yp, x - xp, x + xp, c);
       }
@@ -299,7 +299,8 @@ void draw_horizontal_line(int y1, int x1, int x2, int c) {
     x2 = width; // Clip x2 to width
   }
   //  for(int i = x1; i <= x2; i++) {     // This is slow...
-  //      plot(i, y1, c);                 // so we'll use memset to fill the line in memory
+  //      plot(i, y1, c);                 // so we'll use memset to fill the
+  //      line in memory
   //  }
   memset(&bitmap[width * y1 + x1], colour_base + c, x2 - x1 + 1);
 }
@@ -375,8 +376,9 @@ void step_line(struct Line *line) {
 // - dx, dy: Destination X and Y on screen
 //
 void blit(const void *data, int sx, int sy, int sw, int sh, int dx, int dy) {
-  void *src = (void *)data + (sw * sy) + sx;
-  void *dst = bitmap + (width * dy) + dx;
+  const std::byte *src = static_cast<const std::byte *>(data) + (sw * sy) + sx;
+  std::byte       *dst = reinterpret_cast<std::byte *>(bitmap) + (width * dy) + dx;
+
   for (int i = 0; i < sh; i++) {
     memcpy(dst, src, sw);
     dst += width;

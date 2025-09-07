@@ -19,13 +19,14 @@
 #include "cvideo.h"
 #include "fonts.h"
 #include "graphics.h"
+#include "main.h"
 #include "terminal.h"
 
 int  terminal_x;
 int  terminal_y;
 
 void initialise_terminal(void) {
-  uart_init(uart0, UART_SPEED);
+  uart_init(uart1, UART_SPEED);
   gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART); // RX
   gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART); // TX
 }
@@ -73,9 +74,9 @@ void terminal(void) {
   int  ansi_len = 0;
 
   while (true) {
-    gpio_put(23, 0);
-    char c = uart_getc(uart0); // Blocking read
-    gpio_put(23, 1);
+    gpio_put(PICO_DEFAULT_LED_PIN, 0);
+    char c = uart_getc(uart1); // Blocking read
+    gpio_put(PICO_DEFAULT_LED_PIN, 1);
 
     // TODO: Need to find a way to thread this so it's only blocking this thread, we still need to handle user input and render the prompt
     // etc.
